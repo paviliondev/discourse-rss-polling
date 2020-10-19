@@ -28,7 +28,7 @@ module Jobs
 
       def poll_feed
         topics_polled_from_feed[0].each do |topic|
-          next if Date.parse(@start_date) > topic.created_at
+          next if (@start_date.present? && Date.parse(@start_date) > topic.created_at)
           raw = "#{topic.url}
 
           "
@@ -42,8 +42,16 @@ module Jobs
             title: "#{topic.title() + ' - ' + topics_polled_from_feed[1]}",
             topic_id: nil,
             featured_link: topic.url,
-            created_at: topic.created_at
+            created_at: topic.created_at,
+            topic_opts: {
+              custom_fields: {
+                new_topic_form_data: {
+                  url: topic.url
+                }
+              }
+            }
           }
+
           pm = NewPostManager.new(@author, params)
           pm.perform
         end
