@@ -39,7 +39,7 @@ module Jobs
             raw: raw,
             category: category,
             archetype: 'regular',
-            title: "#{topic.title() +' - '+ topics_polled_from_feed[1]}",
+            title: "#{topic.title() + ' - ' + topics_polled_from_feed[1]}",
             topic_id: nil,
             featured_link: topic.url,
             created_at: topic.created_at
@@ -53,7 +53,7 @@ module Jobs
         raw_feed = fetch_raw_feed
         return [] if raw_feed.blank?
         parsed_feed = RSS::Parser.parse(raw_feed)
-        return parsed_feed.items.map { |item| ::DiscourseRssPolling::FeedItem.new(item) } , parsed_feed.channel.title
+        [parsed_feed.items.map { |item| ::DiscourseRssPolling::FeedItem.new(item) } , parsed_feed.channel.title]
       rescue RSS::NotWellFormedError, RSS::InvalidRSSError
         []
       end
