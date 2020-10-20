@@ -27,6 +27,10 @@ module DiscourseRssPolling
       TextCleaner.clean_title(TextSentinel.title_sentinel(unclean_title).text).presence
     end
 
+    def created_at
+      @accessor.element_content(:pubDate)
+    end
+
     private
 
     # The tag name's relative order implies its priority.
