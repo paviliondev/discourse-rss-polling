@@ -32,17 +32,7 @@ module Jobs
           
           content = CGI.unescapeHTML(topic.content)
           
-          ::CustomTopicEmbed.import(
-            author,
-            topic.url,
-            topic.title,
-            content,
-            new_topic_form_data: {
-              url: topic.url,
-              description: content,
-              posted_at: topic.created_at
-            }
-          )
+          ::CustomTopicEmbed.import(author, topic, content)
         end
       end
 

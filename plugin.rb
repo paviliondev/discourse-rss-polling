@@ -21,14 +21,32 @@ after_initialize do
   class ::CustomTopicEmbed < ::TopicEmbed
     self.table_name = 'topic_embed'
     
-    def self.import(user, url, title, contents, custom_fields)
-      return unless url =~ /^https?\:\/\//
+    def self.import(user, topic, contents)
+      return unless topic.url =~ /^https?\:\/\//
       
-      url = normalize_url(url)
+      title = topic.title
+      url = normalize_url(topic.url)
       embed = TopicEmbed.find_by("lower(embed_url) = ?", url)
       content_sha1 = Digest::SHA1.hexdigest(contents)
       post = nil
-      custom_fields = custom_fields.merge(custom_embed: true)
+      
+      description_length = 300
+      description = ExcerptParser.get_excerpt(
+        contents,
+        description_length,
+        strip_links: true,
+        strip_images: true,
+        text_entities: true
+      )
+      
+      custom_fields = {
+        new_topic_form_data: {
+          url: topic.url,
+          posted_at: topic.created_at,
+          description: description
+        },
+        custom_embed: true
+      }
 
       if embed.blank?
         Topic.transaction do
@@ -36,7 +54,7 @@ after_initialize do
           
           create_args = {
             title: title,
-            raw: self.build_raw(url),
+            raw: self.build_raw(url, contents),
             category: eh.try(:category_id),
             featured_link: url,
             import_mode: true,
@@ -83,7 +101,7 @@ after_initialize do
               (title && title != post&.topic&.title)
             changes = {
               title: title,
-              raw: self.build_raw(url),
+              raw: self.build_raw(url, content),
               topic_opts: {
                 custom_fields: custom_fields
               }
@@ -103,8 +121,16 @@ after_initialize do
       post
     end
     
-    def self.build_raw(url)
-      "#{url}\n\n<small>#{I18n.t('embed.imported_from', link: "<a href='#{url}'>#{url}</a>")}</small>\n<hr>"
+    def self.build_raw(url, content)
+%{
+#{url}
+
+<small>#{I18n.t('embed.imported_from', link: "<a href='#{url}'>#{url}</a>")}</small>
+
+<hr>
+
+#{content}
+}
     end
   end
   
@@ -118,7 +144,7 @@ after_initialize do
   
   on(:post_process_cooked) do |doc, post|
     if post.topic.custom_fields['custom_embed']
-      oneboxed_imgs = doc.css(".onebox-body img, .onebox img, img.onebox")
+      oneboxed_imgs = doc.css(".onebox-body img, .onebox img, img.onebox") - doc.css("img.site-icon")
       
       if oneboxed_imgs.present?
         new_topic_form_data = post.topic.custom_fields['new_topic_form_data'] || {}
