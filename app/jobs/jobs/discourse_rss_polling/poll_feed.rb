@@ -29,31 +29,20 @@ module Jobs
       def poll_feed
         topics_polled_from_feed[0].each do |topic|
           next if (@start_date.present? && Date.parse(@start_date) > topic.created_at)
-          raw = "#{topic.url}
-
-          "
-
-          category = EmbeddableHost.record_for_url(topic.url).category_id
-
-          params = {
-            raw: raw,
-            category: category,
-            archetype: 'regular',
-            title: "#{topic.title() + ' - ' + topics_polled_from_feed[1]}",
-            topic_id: nil,
-            featured_link: topic.url,
-            created_at: topic.created_at,
-            topic_opts: {
-              custom_fields: {
-                new_topic_form_data: {
-                  url: topic.url
-                }
-              }
+          
+          content = CGI.unescapeHTML(topic.content)
+          
+          ::CustomTopicEmbed.import(
+            author,
+            topic.url,
+            topic.title,
+            content,
+            new_topic_form_data: {
+              url: topic.url,
+              description: content,
+              posted_at: topic.created_at
             }
-          }
-
-          pm = NewPostManager.new(@author, params)
-          pm.perform
+          )
         end
       end
 
