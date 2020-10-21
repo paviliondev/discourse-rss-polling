@@ -4,4 +4,6 @@ DiscourseRssPolling::Engine.routes.draw do
   root 'feed_settings#show'
 
   resource :feed_settings, constraints: StaffConstraint.new, only: [:show, :update]
+  
+  post "feed_settings/refresh" => "feed_settings#refresh"
 end

@@ -11,7 +11,7 @@ module Jobs
         @feed_url = args[:feed_url]
         @author = User.find_by_username(args[:author_username])
         @start_date = args[:start_date]
-        poll_feed if not_polled_recently?
+        poll_feed if not_polled_recently? || args[:force]
       end
 
       private

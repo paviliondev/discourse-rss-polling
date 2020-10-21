@@ -13,4 +13,13 @@ export default {
       data: JSON.stringify({ feed_settings: feedSettings }),
     });
   },
+  
+  refresh(feedUrl) {
+    return ajax(`/admin/plugins/rss_polling/feed_settings/refresh`, {
+      type: "POST",
+      contentType: "application/json",
+      processData: false,
+      data: JSON.stringify({ feed_url: feedUrl }),
+    });
+  }
 };

@@ -22,6 +22,17 @@ module DiscourseRssPolling
 
       render json: FeedSettingFinder.all
     end
+    
+    def refresh
+      feed_url = params[:feed_url]
+      feed = DiscourseRssPolling::FeedSettingFinder.by_embed_url(feed_url)
+      
+      if feed && feed.poll(force: true)
+        render json: success_json
+      else
+        render json: failed_json
+      end
+    end
 
     private
 

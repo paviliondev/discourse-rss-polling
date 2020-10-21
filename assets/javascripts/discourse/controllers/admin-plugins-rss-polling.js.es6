@@ -54,5 +54,13 @@ export default Ember.Controller.extend({
           this.set("saving", false);
         });
     },
+    
+    refresh(setting) {
+      this.set('refreshing', true);
+      RssPollingFeedSettings.refresh(setting.feed_url)
+        .finally(() => {
+          this.set("refreshing", false);
+        });
+    }
   },
 });

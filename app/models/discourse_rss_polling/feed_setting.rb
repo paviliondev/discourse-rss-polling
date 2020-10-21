@@ -16,11 +16,11 @@ module DiscourseRssPolling
       @start_date = start_date
     end
 
-    def poll(inline: false)
+    def poll(inline: false, force: false)
       if inline
-        Jobs::DiscourseRssPolling::PollFeed.new.execute(feed_url: feed_url, author_username: author_username, start_date: start_date)
+        Jobs::DiscourseRssPolling::PollFeed.new.execute(feed_url: feed_url, author_username: author_username, start_date: start_date, force: force)
       else
-        Jobs.enqueue('DiscourseRssPolling::PollFeed', feed_url: feed_url, author_username: author_username, start_date: start_date)
+        Jobs.enqueue('DiscourseRssPolling::PollFeed', feed_url: feed_url, author_username: author_username, start_date: start_date, force: force)
       end
     end
   end
