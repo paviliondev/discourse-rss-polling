@@ -101,7 +101,7 @@ after_initialize do
               (title && title != post&.topic&.title)
             changes = {
               title: title,
-              raw: self.build_raw(url, content),
+              raw: self.build_raw(url, contents),
               topic_opts: {
                 custom_fields: custom_fields
               }
@@ -121,7 +121,7 @@ after_initialize do
       post
     end
     
-    def self.build_raw(url, content)
+    def self.build_raw(url, contents)
 %{
 #{url}
 
@@ -129,7 +129,7 @@ after_initialize do
 
 <hr>
 
-#{content}
+#{contents}
 }
     end
   end
