@@ -57,8 +57,7 @@ after_initialize do
             raw: self.build_raw(url, contents),
             category: eh.try(:category_id),
             featured_link: url,
-            import_mode: true,
-            skip_jobs: true,
+            skip_validations: true,
             topic_opts: {
               custom_fields: custom_fields
             }
