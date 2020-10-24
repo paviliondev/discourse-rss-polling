@@ -28,8 +28,18 @@ module Jobs
 
       def poll_feed
         topics_polled_from_feed[0].each do |topic|
-          next if (@start_date.present? && Date.parse(@start_date) > topic.created_at)
           
+          if @start_date.present?
+            begin
+              article_date = topic.created_at.to_date
+              start_date = Date.strptime(@start_date, "%Y-%m-%d")
+            rescue ArgumentError
+              next
+            end
+                        
+            next if start_date > article_date
+          end
+                    
           content = CGI.unescapeHTML(topic.content)
           
           ::CustomTopicEmbed.import(author, topic, content)
