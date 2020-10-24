@@ -142,11 +142,12 @@ after_initialize do
   ::Topic.prepend CustomTopicEmbedTopicExtension
   
   on(:post_process_cooked) do |doc, post|
-    if post.topic.custom_fields['custom_embed']
+    new_topic_form_data = post.topic.custom_fields['new_topic_form_data'] || {}
+    
+    if post.topic.custom_fields['custom_embed'] && !new_topic_form_data['image_url']  
       oneboxed_imgs = doc.css(".onebox-body img, .onebox img, img.onebox") - doc.css("img.site-icon")
       
       if oneboxed_imgs.present?
-        new_topic_form_data = post.topic.custom_fields['new_topic_form_data'] || {}
         new_topic_form_data['image_url'] = oneboxed_imgs.first['src']
         post.topic.custom_fields['new_topic_form_data'] = new_topic_form_data
         post.topic.save_custom_fields(true)
