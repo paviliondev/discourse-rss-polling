@@ -82,39 +82,7 @@ after_initialize do
       else
         post = embed.post
 
-        # Update the topic if it changed
-        if post&.topic
-          if post.user != user
-            PostOwnerChanger.new(
-              post_ids: [post.id],
-              topic_id: post.topic_id,
-              new_owner: user,
-              acting_user: Discourse.system_user
-            ).change_owner!
-
-            # make sure the post returned has the right author
-            post.reload
-          end
-
-          if (content_sha1 != embed.content_sha1) ||
-              (title && title != post&.topic&.title)
-            changes = {
-              title: title,
-              raw: self.build_raw(url, contents),
-              topic_opts: {
-                custom_fields: custom_fields
-              }
-            }
-            
-            post.revise(
-              user,
-              changes,
-              skip_validations: true,
-              bypass_rate_limiter: true
-            )
-            embed.update!(content_sha1: content_sha1)
-          end
-        end
+        # Don't update existing posts from rss feed topics for now
       end
 
       post
