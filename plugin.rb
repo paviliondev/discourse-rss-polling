@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# name: discourse-rss-polling
+# name: rstudio-rss-polling
 # about: This plugin enables support for importing embedded content from multiple RSS/ATOM feeds
-# version: 0.0.1
-# authors: xrav3nz
-# url: https://github.com/paviliondev/discourse-rss-polling
+# version: 0.1.0
+# authors: xrav3nz, Angus Mcleod
+# url: https://github.com/paviliondev/rstudio-rss-polling
 
 load File.expand_path(File.join('..', 'lib', 'discourse_rss_polling', 'engine.rb'), __FILE__)
 
@@ -121,5 +121,25 @@ after_initialize do
         post.topic.save_custom_fields(true)
       end
     end
+  end
+
+  module EmbedControllerExtension
+    def info
+      allowed_origins = SiteSetting.rss_polling_embed_info_allowed_origins.split('|')
+      origin = request.headers['origin']
+      origin_domain = Addressable::URI.parse(origin).host
+
+      if allowed_origins.include?(origin_domain)
+        response.headers['Access-Control-Allow-Origin'] = origin
+        super
+      else
+        raise Discourse::InvalidAccess
+      end
+    end
+  end
+
+  class ::EmbedController
+    skip_before_action :ensure_api_request, only: [ :info ]
+    prepend EmbedControllerExtension
   end
 end

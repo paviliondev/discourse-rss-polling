@@ -2,3 +2,4 @@ en:
   site_settings:
     rss_polling_enabled: '[RSS Polling] Enable importing embed posts from multiple RSS feeds'
     rss_polling_frequency: '[RSS Polling] Feed polling frequency, in minutes'
+    rss_polling_embed_info_allowed_origins: 'Allowed origins of embed info requests'
