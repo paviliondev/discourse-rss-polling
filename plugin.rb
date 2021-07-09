@@ -139,7 +139,8 @@ after_initialize do
   end
 
   class ::EmbedController
-    skip_before_action :ensure_api_request, only: [ :info ]
+    skip_before_action :ensure_api_request, only: [:info]
+    skip_before_action :redirect_to_login_if_required, only: [:info]
     prepend EmbedControllerExtension
   end
 end
